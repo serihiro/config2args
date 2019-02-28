@@ -1,0 +1,24 @@
+[package]
+name = "config2args"
+version = "0.1.0"
+authors = ["Kazuhiro Serizawa <nserihiro@gmail.com>"]
+description = "A CLI tool which converts config file into GNU option style string"
+categories = [ "command-line-utilities" ]
+repository = "https://github.com/serihiro/config2args"
+homepage = "https://github.com/serihiro/config2args"
+readme = "README.md"
+license = "MIT"
+
+[dependencies]
+failure = "0.1.5"
+
+[dependencies.serde_json]
+version = "1.0.39"
+default-features = false
+# To keep the order of items in the specified config file
+# See also https://github.com/serde-rs/json/blob/72e22e5b6dacb267e43f46de108e25ddac9fb340/Cargo.toml#L43-L46
+features = ["preserve_order"]
+
+[[bin]]
+path = "src/main.rs"
+name = "config2args"
