@@ -5,7 +5,7 @@
 This is a CLI tool which converts config file (JSON is only supported for now) into [GNU option style](https://www.gnu.org/prep/standards/html_node/Command_002dLine-Interfaces.html) string
 
 # Example
-```bash
+```sh
 $ cat test.json
 {
     "key1": 1,
@@ -19,10 +19,17 @@ $ ./config2args test.json
 --key1 1 --key2 hello --key3 2 3 4 --key4 1.4 --key5 -a b
 ```
 
-# How to build
+# How to install
 cargo >= `1.32.0` is required. Using [rustup](https://rustup.rs/) is a good way to install rust build tools.
 
+```sh
+$ cargo install config2args
 ```
+
+# How to build locally
+cargo >= `1.32.0` is required. Using [rustup](https://rustup.rs/) is a good way to install rust build tools.
+
+```sh
 $ git clone git@github.com:serihiro/config2args.git
 $ cd config2args
 $ cargo build --release

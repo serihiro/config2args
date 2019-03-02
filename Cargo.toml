@@ -22,3 +22,5 @@ features = ["preserve_order"]
 [[bin]]
 path = "src/main.rs"
 name = "config2args"
+
+[target.x86_64-apple-darwin]
