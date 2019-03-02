@@ -49,10 +49,12 @@ fn generate_args_string(config: &Value) -> String {
     if config.is_object() {
         let keys: serde_json::map::Keys = config.as_object().unwrap().keys();
         for key in keys {
-            if key.len() == 1 {
-                args.push_str(format!("-{key_string} ", key_string = key).as_str());
-            } else {
-                args.push_str(format!("--{key_string} ", key_string = key).as_str());
+            if key.find("_") != Some(0) {
+                if key.len() == 1 {
+                    args.push_str(format!("-{key_string} ", key_string = key).as_str());
+                } else {
+                    args.push_str(format!("--{key_string} ", key_string = key).as_str());
+                }
             }
 
             let item: &Value = &config[key];
@@ -150,6 +152,12 @@ mod tests {
     fn generate_args_string_with_array_value() {
         let config = json!([1, 2, 3]);
         assert_eq!(generate_args_string(&config), "1 2 3");
+    }
+
+    #[test]
+    fn generate_args_string_without_key() {
+        let config = json!({"_skipped_key":1, "not_skipped_key": 2});
+        assert_eq!(generate_args_string(&config), "1 --not_skipped_key 2");
     }
 
     #[test]
