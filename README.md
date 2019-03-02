@@ -15,7 +15,7 @@ $ cat test.json
     "key5": null,
     "a": "b"
 }
-$ ./config2args test.json
+$ config2args test.json
 --key1 1 --key2 hello --key3 2 3 4 --key4 1.4 --key5 -a b
 ```
 
@@ -36,10 +36,59 @@ $ cargo build --release
 ```
 
 # Features
-- Supports JSON file as a config file (YAML may be supported in the future)
-- Supports both of long key name (with `--`) and short key name (with `-`)
-- Supports string (which includes numeric) and array
-- Supports not only JSON object, like `"aaaa"`, `[1, 2, 3]`.
+## Supports JSON file as a config file 
+- YAML may be supported in the future ?
+
+## Supports both of long key name (with `--`) and short key name (with `-`)
+```sh
+$ cat test.json
+{
+    "k": 1,
+    "key": "hello"
+}
+$ config2args test.json
+-k 1 --key hello
+```
+## Supports string (which includes numeric) and array
+```sh
+$ cat test.json
+{
+    "key1": "a",
+    "key2": 1,
+    "key3": 1.4,
+    "key4": ["a", "b", "c"],
+    "key5": [1, 1.4, "c"]
+}
+$ config2args test.json
+--key1 a --key2 1 --key3 1.4 --key4 a b c --key5 1 1.4 c
+```
+
+## Supports ignoring key name
+```sh
+$ cat test.json
+{
+    "_key1": "a",
+    "_key2": "b",
+    "key3": "c"
+}
+$ config2args test.json
+a b --key3 c
+```
+
+## Supports not only JSON object, like `"aaaa"`, `[1, 2, 3]`.
+```sh
+$ cat test.json
+"abcd"
+$ config2args test.json
+abcd
+```
+
+```sh
+$ cat test.json
+[1,2,3]
+$ config2args test.json
+1 2 3
+```
 
 # Motivation
 In many cases, machine learning scripts are implemented with many CLI options.  
