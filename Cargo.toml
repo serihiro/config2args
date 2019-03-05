@@ -1,6 +1,6 @@
 [package]
 name = "config2args"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Kazuhiro Serizawa <nserihiro@gmail.com>"]
 description = "A CLI tool which converts config file into GNU option style string"
 categories = [ "command-line-utilities" ]
