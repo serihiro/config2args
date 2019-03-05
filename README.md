@@ -90,6 +90,27 @@ $ config2args test.json
 1 2 3
 ```
 
+## Supports netsted object
+```sh
+$ cat test.json
+{
+    "key1": 1,
+    "key2": 2,
+    "key3": 3,
+    "key4": {
+        "k1" : 4,
+        "k2" : 5,
+        "a": 6
+    },
+    "z": {
+        "key5": 7,
+        "b": 8
+    }
+}
+$ config2args test.json
+--key1 1 --key2 2 --key3 3 --key4.k1 4 --key4.k2 5 --key4.a 6 --z.key5 7 --z.b 8
+```
+
 # Motivation
 In many cases, machine learning scripts are implemented with many CLI options.  
 For example, I often execute a python script like this:

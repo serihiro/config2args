@@ -25,7 +25,7 @@ fn main() {
         Ok(value) => value,
     };
 
-    println!("{}", generate_args_string(&config));
+    println!("{}", generate_args_string(&config, None));
 }
 
 fn show_usage() {
@@ -43,21 +43,32 @@ fn parse_json_file(file_path: &str) -> Result<Value, failure::Error> {
     return Ok(config);
 }
 
-fn generate_args_string(config: &Value) -> String {
+fn generate_args_string(config: &Value, prefix: Option<String>) -> String {
     let mut args: String = String::new();
 
     if config.is_object() {
         let keys: serde_json::map::Keys = config.as_object().unwrap().keys();
+
         for key in keys {
-            if key.find("_") != Some(0) {
-                if key.len() == 1 {
-                    args.push_str(format!("-{key_string} ", key_string = key).as_str());
+            let mut key_name: String = prefix.clone().unwrap_or(String::new());
+            key_name.push_str(key);
+
+            let item: &Value = &config[key];
+            if item.is_object() {
+                key_name.push_str(".");
+                let nested_args: String = generate_args_string(item, Some(key_name.clone()));
+                args.push_str(format!("{} ", nested_args.as_str()).as_str());
+                continue;
+            }
+
+            if key_name.find("_") != Some(0) {
+                if key_name.len() == 1 {
+                    args.push_str(format!("-{key_string} ", key_string = key_name).as_str());
                 } else {
-                    args.push_str(format!("--{key_string} ", key_string = key).as_str());
+                    args.push_str(format!("--{key_string} ", key_string = key_name).as_str());
                 }
             }
 
-            let item: &Value = &config[key];
             if item.is_number() {
                 args.push_str(format!("{} ", item.as_f64().unwrap()).as_str());
                 continue;
@@ -78,7 +89,7 @@ fn generate_args_string(config: &Value) -> String {
                 continue;
             }
 
-            panic!("Only number, string and array are supprted as an item of json config file.");
+            panic!("Only number, only string, array and object are supprted as an item of json config file.");
         }
     } else {
         if config.is_array() {
@@ -124,20 +135,20 @@ mod tests {
     #[test]
     fn generate_args_string_with_long_keys() {
         let config = json!({"key1": 1, "key2": "udon"});
-        assert_eq!(generate_args_string(&config), "--key1 1 --key2 udon");
+        assert_eq!(generate_args_string(&config, None), "--key1 1 --key2 udon");
     }
 
     #[test]
     fn generate_args_string_with_short_keys() {
         let config = json!({"a": 1, "b": "udon"});
-        assert_eq!(generate_args_string(&config), "-a 1 -b udon");
+        assert_eq!(generate_args_string(&config, None), "-a 1 -b udon");
     }
 
     #[test]
     fn generate_args_string_with_array() {
         let config = json!({"key1": 1, "b": "udon", "key3": [1,2,3]});
         assert_eq!(
-            generate_args_string(&config),
+            generate_args_string(&config, None),
             "--key1 1 -b udon --key3 1 2 3"
         );
     }
@@ -145,32 +156,34 @@ mod tests {
     #[test]
     fn generate_args_string_with_string_value() {
         let config = json!("soba");
-        assert_eq!(generate_args_string(&config), "soba");
+        assert_eq!(generate_args_string(&config, None), "soba");
     }
 
     #[test]
     fn generate_args_string_with_array_value() {
         let config = json!([1, 2, 3]);
-        assert_eq!(generate_args_string(&config), "1 2 3");
+        assert_eq!(generate_args_string(&config, None), "1 2 3");
     }
 
     #[test]
     fn generate_args_string_without_key() {
         let config = json!({"_skipped_key":1, "not_skipped_key": 2});
-        assert_eq!(generate_args_string(&config), "1 --not_skipped_key 2");
+        assert_eq!(generate_args_string(&config, None), "1 --not_skipped_key 2");
     }
 
     #[test]
-    #[should_panic]
     fn generate_args_string_with_nested_object() {
-        let config = json!({"key1": 1, "b": "udon", "key3": [1,2,3], "key4": {"nested":"udon"} });
-        generate_args_string(&config);
+        let config = json!({"key1":1, "key2": 2, "key3": { "k1": 3, "k2": 4, "k3": { "k4": 5 } }});
+        assert_eq!(
+            generate_args_string(&config, None),
+            "--key1 1 --key2 2 --key3.k1 3 --key3.k2 4 --key3.k3.k4 5"
+        );
     }
 
     #[test]
     #[should_panic]
     fn generate_args_string_with_nested_array() {
         let config = json!({"key1": 1, "b": "udon", "key3": [1,2,3, [4]]});
-        generate_args_string(&config);
+        generate_args_string(&config, None);
     }
 }
