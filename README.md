@@ -110,6 +110,18 @@ $ cat test.json
 $ config2args test.json
 --key1 1 --key2 2 --key3 3 --key4.k1 4 --key4.k2 5 --key4.a 6 --z.key5 7 --z.b 8
 ```
+## Supports [tera](https://tera.netlify.com/) template engine
+If the file name of the input file ends with `.tera`, the file is evalued as a tera template.
+
+```sh
+$ cat test.json.tera
+{
+    "_setup_variable_for_tera": "{% set my_var = now() | date(format=\"%Y%m%d%H%M%S\") %}",
+    "output": "logs/{{my_var}}"
+}
+$ config2args test.json.tera
+--output logs/20190323005419
+```
 
 # Motivation
 In many cases, machine learning scripts are implemented with many CLI options.  

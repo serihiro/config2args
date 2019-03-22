@@ -1,6 +1,8 @@
 #[cfg(not(test))]
 extern crate serde_json;
 
+extern crate tera;
+
 #[cfg(test)]
 #[macro_use]
 extern crate serde_json;
@@ -25,7 +27,18 @@ fn main() {
         Ok(value) => value,
     };
 
-    println!("{}", generate_args_string(&config, None));
+    let raw_string = generate_args_string(&config, None);
+
+    let is_tera_template = config_file_path.ends_with(".tera");
+    if is_tera_template {
+        let result = match eval_as_tera_template(&raw_string) {
+            Err(why) => panic!("failed to eval as a tera template: {}", why),
+            Ok(value) => value,
+        };
+        println!("{}", result);
+    } else {
+        println!("{}", raw_string);
+    }
 }
 
 fn show_usage() {
@@ -128,6 +141,11 @@ fn convert_vec_to_string_vec(vec: &Vec<Value>) -> Vec<String> {
     return result;
 }
 
+fn eval_as_tera_template(template_string: &String) -> Result<String, tera::Error> {
+    let context = tera::Context::new();
+    return tera::Tera::one_off(&template_string, &context, true);
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -185,5 +203,15 @@ mod tests {
     fn generate_args_string_with_nested_array() {
         let config = json!({"key1": 1, "b": "udon", "key3": [1,2,3, [4]]});
         generate_args_string(&config, None);
+    }
+
+    #[test]
+    fn eval_as_a_tera_template() {
+        let config = json!({"key1": "{% set my_var = [1, 2, 3, 4] %}{% for i in my_var %}{{i}} {% endfor %}"});
+        let raw_string = generate_args_string(&config, None);
+        assert_eq!(
+            eval_as_tera_template(&raw_string).unwrap(),
+            "--key1 1 2 3 4 "
+        );
     }
 }
