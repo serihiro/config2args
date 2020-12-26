@@ -1,5 +1,4 @@
 [![crate-name at crates.io](https://img.shields.io/crates/v/config2args.svg)](https://crates.io/crates/config2args)
-[![Build Status](https://travis-ci.org/serihiro/config2args.svg?branch=master)](https://travis-ci.org/serihiro/config2args)
 
 # About this repository
 This is a CLI tool which converts config file (JSON is only supported for now) into [GNU option style](https://www.gnu.org/prep/standards/html_node/Command_002dLine-Interfaces.html) string
