@@ -11,7 +11,7 @@ license = "MIT"
 
 [dependencies]
 failure = "0.1.8"
-tera = "1.8"
+tera = "1.13"
 
 [dependencies.serde_json]
 version = "1.0.64"
