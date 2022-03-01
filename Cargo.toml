@@ -12,7 +12,7 @@ edition = "2021"
 
 [dependencies]
 failure = "0.1.8"
-tera = "1.13"
+tera = "1.15"
 
 [dependencies.serde_json]
 version = "1.0.79"
