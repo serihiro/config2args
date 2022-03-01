@@ -15,7 +15,7 @@ failure = "0.1.8"
 tera = "1.13"
 
 [dependencies.serde_json]
-version = "1.0.68"
+version = "1.0.79"
 default-features = false
 # To keep the order of items in the specified config file
 # See also https://github.com/serde-rs/json/blob/72e22e5b6dacb267e43f46de108e25ddac9fb340/Cargo.toml#L43-L46
