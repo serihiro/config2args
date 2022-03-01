@@ -16,13 +16,13 @@ use std::io::prelude::*;
 
 fn main() {
     let args: Vec<String> = env::args().skip(1).collect();
-    if args.len() == 0 {
+    if args.is_empty() {
         show_usage();
         std::process::exit(1);
     }
 
     let config_file_path = &args[0];
-    let config = match parse_json_file(&config_file_path) {
+    let config = match parse_json_file(config_file_path) {
         Err(why) => panic!("failed to parse json file: {}", why),
         Ok(value) => value,
     };
@@ -53,7 +53,7 @@ fn parse_json_file(file_path: &str) -> Result<Value, failure::Error> {
 
     let config: Value = serde_json::from_str(&raw_json_contents)?;
 
-    return Ok(config);
+    Ok(config)
 }
 
 fn generate_args_string(config: &Value, prefix: Option<String>) -> String {
@@ -63,18 +63,18 @@ fn generate_args_string(config: &Value, prefix: Option<String>) -> String {
         let keys: serde_json::map::Keys = config.as_object().unwrap().keys();
 
         for key in keys {
-            let mut key_name: String = prefix.clone().unwrap_or(String::new());
+            let mut key_name = prefix.clone().unwrap_or_default();
             key_name.push_str(key);
 
             let item: &Value = &config[key];
             if item.is_object() {
-                key_name.push_str(".");
+                key_name.push('.');
                 let nested_args: String = generate_args_string(item, Some(key_name.clone()));
                 args.push_str(format!("{} ", nested_args.as_str()).as_str());
                 continue;
             }
 
-            if key_name.find("_") != Some(0) {
+            if key_name.find('_') != Some(0) {
                 if key_name.len() == 1 {
                     args.push_str(format!("-{key_string} ", key_string = key_name).as_str());
                 } else {
@@ -122,7 +122,7 @@ fn generate_args_string(config: &Value, prefix: Option<String>) -> String {
     return args.trim_end().to_string();
 }
 
-fn convert_vec_to_string_vec(vec: &Vec<Value>) -> Vec<String> {
+fn convert_vec_to_string_vec(vec: &[Value]) -> Vec<String> {
     let mut result: Vec<String> = Vec::new();
     for item in vec {
         if item.is_number() {
@@ -138,12 +138,12 @@ fn convert_vec_to_string_vec(vec: &Vec<Value>) -> Vec<String> {
         panic!("Only number and string are supprted as an item of Array");
     }
 
-    return result;
+    result
 }
 
-fn eval_as_tera_template(template_string: &String) -> Result<String, tera::Error> {
+fn eval_as_tera_template(template_string: &str) -> Result<String, tera::Error> {
     let context = tera::Context::new();
-    return tera::Tera::one_off(&template_string, &context, true);
+    tera::Tera::one_off(template_string, &context, true)
 }
 
 #[cfg(test)]
