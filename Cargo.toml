@@ -8,6 +8,7 @@ repository = "https://github.com/serihiro/config2args"
 homepage = "https://github.com/serihiro/config2args"
 readme = "README.md"
 license = "MIT"
+edition = "2021"
 
 [dependencies]
 failure = "0.1.8"
