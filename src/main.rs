@@ -51,25 +51,25 @@ fn parse_json_file(file_path: &str) -> Result<Value, failure::Error> {
     let mut raw_json_contents = String::new();
     file.read_to_string(&mut raw_json_contents)?;
 
-    let config: Value = serde_json::from_str(&raw_json_contents)?;
+    let config = serde_json::from_str(&raw_json_contents)?;
 
     Ok(config)
 }
 
 fn generate_args_string(config: &Value, prefix: Option<String>) -> String {
-    let mut args: String = String::new();
+    let mut args = String::new();
 
     if config.is_object() {
-        let keys: serde_json::map::Keys = config.as_object().unwrap().keys();
+        let keys = config.as_object().unwrap().keys();
 
         for key in keys {
             let mut key_name = prefix.clone().unwrap_or_default();
             key_name.push_str(key);
 
-            let item: &Value = &config[key];
+            let item = &config[key];
             if item.is_object() {
                 key_name.push('.');
-                let nested_args: String = generate_args_string(item, Some(key_name.clone()));
+                let nested_args = generate_args_string(item, Some(key_name.clone()));
                 args.push_str(format!("{} ", nested_args.as_str()).as_str());
                 continue;
             }
@@ -97,7 +97,7 @@ fn generate_args_string(config: &Value, prefix: Option<String>) -> String {
             }
 
             if item.is_array() {
-                let string_array: Vec<String> = convert_vec_to_string_vec(item.as_array().unwrap());
+                let string_array = convert_vec_to_string_vec(item.as_array().unwrap());
                 args.push_str(format!("{} ", string_array.as_slice().join(" ")).as_str());
                 continue;
             }
@@ -106,7 +106,7 @@ fn generate_args_string(config: &Value, prefix: Option<String>) -> String {
         }
     } else {
         if config.is_array() {
-            let string_array: Vec<String> = convert_vec_to_string_vec(config.as_array().unwrap());
+            let string_array = convert_vec_to_string_vec(config.as_array().unwrap());
             args.push_str(format!("{} ", string_array.as_slice().join(" ")).as_str());
         }
 
@@ -123,7 +123,7 @@ fn generate_args_string(config: &Value, prefix: Option<String>) -> String {
 }
 
 fn convert_vec_to_string_vec(vec: &[Value]) -> Vec<String> {
-    let mut result: Vec<String> = Vec::new();
+    let mut result = Vec::new();
     for item in vec {
         if item.is_number() {
             result.push(item.as_f64().unwrap().to_string());
