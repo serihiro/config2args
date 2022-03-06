@@ -7,8 +7,6 @@ extern crate tera;
 #[macro_use]
 extern crate serde_json;
 
-extern crate failure;
-
 use serde_json::Value;
 use std::env;
 use std::fs::File;
@@ -45,7 +43,7 @@ fn show_usage() {
     println!("usage: cofing2args /path/to/config.json");
 }
 
-fn parse_json_file(file_path: &str) -> Result<Value, failure::Error> {
+fn parse_json_file(file_path: &str) -> anyhow::Result<Value> {
     let mut file = File::open(file_path)?;
 
     let mut raw_json_contents = String::new();
