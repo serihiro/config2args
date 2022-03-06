@@ -12,7 +12,7 @@ use std::env;
 use std::fs::File;
 use std::io::prelude::*;
 
-fn main() {
+fn main() -> anyhow::Result<()> {
     let args: Vec<String> = env::args().skip(1).collect();
     if args.is_empty() {
         show_usage();
@@ -20,23 +20,19 @@ fn main() {
     }
 
     let config_file_path = &args[0];
-    let config = match parse_json_file(config_file_path) {
-        Err(why) => panic!("failed to parse json file: {}", why),
-        Ok(value) => value,
-    };
+    let config = parse_json_file(config_file_path)?;
 
     let raw_string = generate_args_string(&config, None);
 
     let is_tera_template = config_file_path.ends_with(".tera");
     if is_tera_template {
-        let result = match eval_as_tera_template(&raw_string) {
-            Err(why) => panic!("failed to eval as a tera template: {}", why),
-            Ok(value) => value,
-        };
+        let result =  eval_as_tera_template(&raw_string)?;
         println!("{}", result);
     } else {
         println!("{}", raw_string);
     }
+
+    Ok(())
 }
 
 fn show_usage() {
