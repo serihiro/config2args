@@ -139,9 +139,9 @@ fn convert_vec_to_string_vec(vec: &[Value]) -> Vec<String> {
     result
 }
 
-fn eval_as_tera_template(template_string: &str) -> Result<String, tera::Error> {
+fn eval_as_tera_template(template_string: &str) -> anyhow::Result<String> {
     let context = tera::Context::new();
-    tera::Tera::one_off(template_string, &context, true)
+    Ok(tera::Tera::one_off(template_string, &context, true)?)
 }
 
 #[cfg(test)]
@@ -206,6 +206,17 @@ mod tests {
     #[test]
     fn eval_as_a_tera_template() {
         let config = json!({"key1": "{% set my_var = [1, 2, 3, 4] %}{% for i in my_var %}{{i}} {% endfor %}"});
+        let raw_string = generate_args_string(&config, None);
+        assert_eq!(
+            eval_as_tera_template(&raw_string).unwrap(),
+            "--key1 1 2 3 4 "
+        );
+    }
+
+    #[test]
+    #[should_panic]
+    fn eval_as_an_invalid_tera_template() {
+        let config = json!({"key1": "{% set my_var = [1, 2, 3, 4] %}{% for i in my_var %}{{i}} {% endfor %"});
         let raw_string = generate_args_string(&config, None);
         assert_eq!(
             eval_as_tera_template(&raw_string).unwrap(),
