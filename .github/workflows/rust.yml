@@ -1,0 +1,36 @@
+name: Rust CI
+
+on:
+  push:
+    branches:
+      - '**'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    name: Test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        rust: [1.85.0]
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Rust
+      uses: dtolnay/rust-toolchain@master
+      with:
+        toolchain: ${{ matrix.rust }}
+        components: rustfmt, clippy
+    
+    - name: Cargo fmt
+      run: cargo fmt --all -- --check
+      
+    - name: Cargo clippy
+      run: cargo clippy -- -D warnings
+      
+    - name: Cargo test
+      run: cargo test --verbose
