@@ -5,3 +5,13 @@ updates:
   schedule:
     interval: daily
   open-pull-requests-limit: 10
+  versioning-strategy: auto
+  # Configure version updates
+  # Patch versions will be auto-merged when CI passes
+  # Minor and major versions will require review
+  allow:
+    # Allow only patch updates to be auto-merged
+    - dependency-type: all
+      update-type: "version-update:semver-patch"
+  # Enable auto-merge for patch updates
+  auto-merge: true
