@@ -1,13 +1,6 @@
-#[cfg(not(test))]
-extern crate serde_json;
-
-extern crate tera;
-
-#[cfg(test)]
-#[macro_use]
-extern crate serde_json;
-
 use serde_json::Value;
+#[cfg(test)]
+use serde_json::json;
 use std::env;
 use std::fs::File;
 use std::io::prelude::*;
@@ -26,17 +19,17 @@ fn main() -> anyhow::Result<()> {
 
     let is_tera_template = config_file_path.ends_with(".tera");
     if is_tera_template {
-        let result =  eval_as_tera_template(&raw_string)?;
-        println!("{}", result);
+        let result = eval_as_tera_template(&raw_string)?;
+        println!("{result}");
     } else {
-        println!("{}", raw_string);
+        println!("{raw_string}");
     }
 
     Ok(())
 }
 
 fn show_usage() {
-    println!("usage: cofing2args /path/to/config.json");
+    println!("usage: config2args /path/to/config.json");
 }
 
 fn parse_json_file(file_path: &str) -> anyhow::Result<Value> {
@@ -64,25 +57,27 @@ fn generate_args_string(config: &Value, prefix: Option<String>) -> String {
             if item.is_object() {
                 key_name.push('.');
                 let nested_args = generate_args_string(item, Some(key_name.clone()));
-                args.push_str(format!("{} ", nested_args.as_str()).as_str());
+                args.push_str(&format!("{nested_args} "));
                 continue;
             }
 
             if key_name.find('_') != Some(0) {
                 if key_name.len() == 1 {
-                    args.push_str(format!("-{key_string} ", key_string = key_name).as_str());
+                    args.push_str(&format!("-{key_name} "));
                 } else {
-                    args.push_str(format!("--{key_string} ", key_string = key_name).as_str());
+                    args.push_str(&format!("--{key_name} "));
                 }
             }
 
             if item.is_number() {
-                args.push_str(format!("{} ", item.as_f64().unwrap()).as_str());
+                let value = item.as_f64().unwrap();
+                args.push_str(&format!("{value} "));
                 continue;
             }
 
             if item.is_string() {
-                args.push_str(format!("{} ", item.as_str().unwrap()).as_str());
+                let value = item.as_str().unwrap();
+                args.push_str(&format!("{value} "));
                 continue;
             }
 
@@ -92,28 +87,32 @@ fn generate_args_string(config: &Value, prefix: Option<String>) -> String {
 
             if item.is_array() {
                 let string_array = convert_vec_to_string_vec(item.as_array().unwrap());
-                args.push_str(format!("{} ", string_array.as_slice().join(" ")).as_str());
+                let joined = string_array.join(" ");
+                args.push_str(&format!("{joined} "));
                 continue;
             }
 
-            panic!("Only number, only string, array and object are supprted as an item of json config file.");
+            panic!("Only number, string, array and object are supported as an item of json config file.");
         }
     } else {
         if config.is_array() {
             let string_array = convert_vec_to_string_vec(config.as_array().unwrap());
-            args.push_str(format!("{} ", string_array.as_slice().join(" ")).as_str());
+            let joined = string_array.join(" ");
+            args.push_str(&format!("{joined} "));
         }
 
         if config.is_number() {
-            args.push_str(format!("{} ", config.as_f64().unwrap()).as_str());
+            let value = config.as_f64().unwrap();
+            args.push_str(&format!("{value} "));
         }
 
         if config.is_string() {
-            args.push_str(format!("{} ", config.as_str().unwrap()).as_str());
+            let value = config.as_str().unwrap();
+            args.push_str(&format!("{value} "));
         }
     }
 
-    return args.trim_end().to_string();
+    args.trim_end().to_string()
 }
 
 fn convert_vec_to_string_vec(vec: &[Value]) -> Vec<String> {
@@ -129,7 +128,7 @@ fn convert_vec_to_string_vec(vec: &[Value]) -> Vec<String> {
             continue;
         }
 
-        panic!("Only number and string are supprted as an item of Array");
+        panic!("Only number and string are supported as an item of Array");
     }
 
     result
