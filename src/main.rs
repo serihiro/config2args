@@ -92,7 +92,9 @@ fn generate_args_string(config: &Value, prefix: Option<String>) -> String {
                 continue;
             }
 
-            panic!("Only number, string, array and object are supported as an item of json config file.");
+            panic!(
+                "Only number, string, array and object are supported as an item of json config file."
+            );
         }
     } else {
         if config.is_array() {
