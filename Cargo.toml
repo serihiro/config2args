@@ -11,7 +11,7 @@ license = "MIT"
 edition = "2024"
 
 [dependencies]
-anyhow = { version = "1.0.98", features = ["backtrace"] }
+anyhow = { version = "1.0.99", features = ["backtrace"] }
 tera = "1.20"
 
 [dependencies.serde_json]
