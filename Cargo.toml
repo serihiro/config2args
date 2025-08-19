@@ -15,7 +15,7 @@ anyhow = { version = "1.0.99", features = ["backtrace"] }
 tera = "1.20"
 
 [dependencies.serde_json]
-version = "1.0.142"
+version = "1.0.143"
 default-features = false
 # To keep the order of items in the specified config file
 # See also https://github.com/serde-rs/json/blob/72e22e5b6dacb267e43f46de108e25ddac9fb340/Cargo.toml#L43-L46
