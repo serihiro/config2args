@@ -12,7 +12,7 @@ edition = "2024"
 
 [dependencies]
 anyhow = { version = "1.0.102", features = ["backtrace"] }
-tera = "1.20"
+tera = "2.0"
 
 [dependencies.serde_json]
 version = "1.0.150"
